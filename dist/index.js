@@ -2914,7 +2914,9 @@ try
     }
     let filePath = path.join(process.env.GITHUB_WORKSPACE, fileDirectory, fileName);
 
-    fs.writeFileSync(filePath, envFileContent)
+    console.log(`dest path: ${filePath}`);
+
+    fs.writeFileSync(filePath, envFileContent);
 }
 catch (error)
 {
