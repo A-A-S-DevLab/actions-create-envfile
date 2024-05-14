@@ -51,29 +51,15 @@ try
         }
     }
 
-    let filePath = process.env['GITHUB_WORKSPACE'] || '.'
-
-    if (filePath === '' || filePath === 'None')
-    {
-        filePath = '.'
-    }
-
-    if (fileDirectory === '')
-    {
-        filePath = path.join(filePath, fileName)
-    }
-    else if (fileDirectory.startsWith('/'))
+    if (fileDirectory.startsWith('/'))
     {
         throw new Error('Absolute paths are not allowed. Please use a relative path.')
     }
-    else if (fileDirectory.startsWith('./'))
+    if (fileDirectory.startsWith('./'))
     {
-        filePath = path.join(filePath, fileDirectory.slice(2), fileName)
+        fileDirectory = fileDirectory.slice(2);
     }
-    else
-    {
-        filePath = path.join(filePath, fileDirectory, fileName)
-    }
+    let filePath = path.join(process.env.GITHUB_WORKSPACE, fileDirectory, fileName);
 
     fs.writeFileSync(filePath, envFileContent)
 }
