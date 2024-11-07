@@ -59,7 +59,7 @@ try
 
     console.log(`dest path: ${filePath}`);
 
-    fs.writeFileSync(filePath, envFileContent);
+    fs.writeFileSync(filePath, envFileContent, { encoding:'utf8', flag:'a' });
 }
 catch (error)
 {
