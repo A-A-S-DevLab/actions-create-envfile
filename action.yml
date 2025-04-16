@@ -1,22 +1,23 @@
 name: 'Create .env file'
-description: 'This GitHub Action helps to replace all placeholders like ${{name}} in file'
-author: 'Alexey Savelyev with AI'
+description: 'This GitHub Action helps to create a .env file'
+author: 'Alexey Savelyev'
 inputs:
-    template_path:
-        description: 'The path to the template file or directory.'
-        required: true
-        default: ''
-    data_path:
-        description: 'Path to the JSON file containing the replacement data.'
-        required: true
-    output_dir:
-        description: 'Directory where modified files will be saved.'
-        required: true
-        default: '.'
-    mask:
-        description: 'Glob pattern to filter files in the directory (default is `**/*.json`).'
+    name:
+        description: 'The filename for the envfile'
         required: false
-        default: '**/*.json'
+        default: '.env'
+    directory:
+        description: 'The directory to put the envfile in'
+        required: false
+        default: ''
+    fail_on_empty:
+        description: 'Fail if an env key is an empty string'
+        required: false
+        default: 'false'
+    sort_keys:
+        description: 'Sort the keys alphabetically'
+        required: false
+        default: 'false'
 
 runs:
     using: 'node20'

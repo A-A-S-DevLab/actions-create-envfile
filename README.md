@@ -1,25 +1,34 @@
-# GitHub Action - Replace placeholders
+# GitHub Action - Upsert JSON values
 
-This GitHub Action helps to replace all placeholders in file
+This GitHub Action helps to create a .env file
 
 
 ## Usage
 
 Add this step in your workflow file
 ```yaml
--   name: Run Replace Placeholders Action
-    uses: A-A-S-DevLab/actions-replace-placeholders@1.0.0
+-   name: Create .env file
+    uses: A-A-S-DevLab/actions-create-envfile@v1.0.0
     with:
-        template_path: 'templates/files'  # Directory with files (or specify a single file path)
-        data_path: 'data/values.json'  # JSON file with replacement values
-        output_dir: 'dist/files-output'  # Directory to save modified files
-        mask: '**/*.txt'  # Mask to filter files (e.g., '*.txt', '**/*.json')
+        name: ".env"
+        fail_on_empty: true
+        envkey_debug: false
+        envkey_container_name: ${{ env.CONTAINER_NAME }}
+        envkey_service_network: ${{ env.SERVICE_NETWORK }}
+        envkey_service_port: ${{ env.SERVICE_PORT }}
+        envkey_server_local_ip: ${{ env.SERVER_LOCAL_IP }}
+        envkey_image_version: ${{ env.IMAGE_VERSION }}
 ```
 
 ## Input Variables
 
-- `template_path`: The path to the template file or directory.
-- `data_path`: Path to the JSON file containing the replacement data.
-- `output_dir`: Directory where modified files will be saved.
-- `mask`: 'Glob pattern to filter files in the directory (default is `**/*.json`).'
+- `name`: The filename for the envfile. Defaults to .env.
+- `directory`: The directory to put the envfile in.
+- `fail_on_empty`: Fail if an env key is an empty string. Default to false.
+- `sort_keys`: Sort the keys alphabetically. Default to false.
+- `envkey_some_env`: These values can be whatever, and they will be added to the '.env' file as `SOME_ENV`.
+                                    
+## 
 
+This repo was forked and modified.
+Original: https://github.com/SpicyPizza/create-envfile
