@@ -3,15 +3,20 @@ description: 'This GitHub Action helps to replace all placeholders like ${{name}
 author: 'Alexey Savelyev with AI'
 inputs:
     template_path:
-        description: 'Path to the template file'
+        description: 'The path to the template file or directory.'
         required: true
+        default: ''
     data_path:
-        description: 'Path to the JSON data file'
+        description: 'Path to the JSON file containing the replacement data.'
         required: true
-    output_path:
-        description: 'Path to save the output file'
+    output_dir:
+        description: 'Directory where modified files will be saved.'
+        required: true
+        default: '.'
+    mask:
+        description: 'Glob pattern to filter files in the directory (default is `**/*.json`).'
         required: false
-        default: 'output.txt'
+        default: '**/*.json'
 
 runs:
     using: 'node20'

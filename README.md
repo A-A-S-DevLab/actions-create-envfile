@@ -7,16 +7,19 @@ This GitHub Action helps to replace all placeholders in file
 
 Add this step in your workflow file
 ```yaml
--   name: Replace placeholders in file
-    uses: A-A-S-DevLab/actions-replace-placeholders@1.0.0
+-   name: Run Replace Placeholders Action
+    uses: ./.github/actions/replace-placeholders
     with:
-        template_path: 'template.txt'
-        data_path: 'data.json'
-        output_path: 'result.txt'
+        template_path: 'templates/files'  # Directory with files (or specify a single file path)
+        data_path: 'data/values.json'  # JSON file with replacement values
+        output_dir: 'dist/files-output'  # Directory to save modified files
+        mask: '**/*.txt'  # Mask to filter files (e.g., '*.txt', '**/*.json')
 ```
 
 ## Input Variables
 
-- `template_path`: Path to the template file.
-- `data_path`: Path to the JSON data file.
-- `output_path`: Path to save the output file.
+- `template_path`: The path to the template file or directory.
+- `data_path`: Path to the JSON file containing the replacement data.
+- `output_dir`: Directory where modified files will be saved.
+- `mask`: 'Glob pattern to filter files in the directory (default is `**/*.json`).'
+
