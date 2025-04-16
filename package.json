@@ -1,14 +1,10 @@
 {
-  "name": "actions-create-envfile",
+  "name": "actions-replace-placeholders",
   "version": "1.0.0",
-  "description": "This GitHub Action helps to create a .env file",
+  "description": "This GitHub Action helps to replace all placeholders in file",
   "main": "src/index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "Alexey Savelyev",
-  "license": "ISC",
+  "author": "Alexey Savelyev with AI",
+  "license": "MIT License",
   "dependencies": {
     "@actions/core": "^1.10.0",
     "@actions/github": "^5.1.1"

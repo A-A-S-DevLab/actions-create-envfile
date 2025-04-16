@@ -1,70 +1,36 @@
-const core = require("@actions/core");
-const fs = require("fs");
-const path = require("path");
-
-const fileName = core.getInput('name') || '.env'
-const fileDirectory = core.getInput('directory') || ''
-const fail_on_empty = core.getInput('fail_on_empty') || 'true';
-const sort_keys = core.getInput('sort_keys') || 'false';
+const core = require('@actions/core');
+const fs = require('fs');
+const path = require('path');
 
 try
 {
-    let envKeys;
-    if (sort_keys === 'true')
-    {
-        envKeys = Object.keys(process.env).sort((a, b) => a.localeCompare(b));
-    }
-    else
-    {
-        envKeys = Object.keys(process.env);
-    }
+    const templatePath = core.getInput('template_path');
+    const dataPath = core.getInput('data_path');
+    const outputPath = core.getInput('output_path') || 'output.txt';
 
-    let envFileContent = '';
+    // Read template and data
+    const template = fs.readFileSync(templatePath, 'utf-8');
+    const data = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
 
-    for (const key of envKeys)
-    {
-        if (key.startsWith('INPUT_ENVKEY_'))
-        {
-            const value = process.env[key] || '';
+    // Replace placeholders like ${{key}}
+    const output = template.replace(/\$\{\{(.*?)\}\}/g, (match, key) => {
+        const value = data[key.trim()];
+        return value !== undefined ? value : match;
+    });
 
-            if (value === '' && fail_on_empty === 'true') {
-                throw new Error(`Empty env key found: ${key}`)
-            }
-
-            // If the value contains newlines, replace them with the string `\n`
-            // and add double quotes around the value.
-            //
-            // Reference from dotenv:
-            // https://github.com/motdotla/dotenv#multiline-values
-            if (value.includes('\n'))
-            {
-                envFileContent += `${key.split('INPUT_ENVKEY_')[1]}="${value.replace(/\r?\n/g, '\\n')}"\n`;
-            }
-            else
-            {
-                envFileContent += `${key.split('INPUT_ENVKEY_')[1]}=${value}\n`;
-            }
-        }
+    // Ensure directory exists
+    const outputDir = path.dirname(outputPath);
+    if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+        console.log(`📁 Created output directory: ${outputDir}`);
     }
 
-    if (fileDirectory.startsWith('/'))
-    {
-        throw new Error('Absolute paths are not allowed. Please use a relative path.');
-    }
-    if (fileDirectory.startsWith('./'))
-    {
-        fileDirectory = fileDirectory.slice(2);
-    }
-    let filePath = path.join(process.env.GITHUB_WORKSPACE, fileDirectory, fileName);
-
-    console.log(`dest path: ${filePath}`);
-
-    fs.writeFileSync(filePath, envFileContent, { encoding:'utf8', flag:'a' });
+    // Write output file
+    fs.writeFileSync(outputPath, output);
+    
+    console.log(`✅ Placeholders replaced. Output saved to ${outputPath}`);
 }
 catch (error)
 {
-    if (error instanceof Error)
-    {
-        core.setFailed(error.message);
-    }
+    core.setFailed(`❌ Error: ${error.message}`);
 }
