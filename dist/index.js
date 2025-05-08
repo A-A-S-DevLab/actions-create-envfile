@@ -2854,7 +2854,7 @@ const fs = __nccwpck_require__(896);
 const path = __nccwpck_require__(928);
 
 const fileName = core.getInput('name') || '.env'
-const fileDirectory = core.getInput('directory') || ''
+let fileDirectory = core.getInput('directory') || ''
 const fail_on_empty = core.getInput('fail_on_empty') || 'true';
 const sort_keys = core.getInput('sort_keys') || 'false';
 
