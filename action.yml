@@ -7,7 +7,7 @@ inputs:
         required: false
         default: '.env'
     directory:
-        description: 'The directory to put the envfile in'
+        description: 'The directory to put the envfile in, relative to the workspace; it must exist'
         required: false
         default: ''
     is_envkey_allow_empty:
@@ -21,11 +21,11 @@ inputs:
     default_envkey_value:
         description: 'Value for an empty envkey_ value'
         required: false
-        default: ''
+        default: '_'
     default_json_value:
         description: 'Value for an empty json value'
         required: false
-        default: ''
+        default: '_'
     json:
         description: 'JSON object {"key": "value"}; its keys are added after the envkey_ keys'
         required: false

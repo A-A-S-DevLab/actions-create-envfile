@@ -27610,8 +27610,8 @@ try
     let fileDirectory = core.getInput('directory') || ''
     const is_envkey_allow_empty = core.getBooleanInput('is_envkey_allow_empty');
     const is_json_allow_empty = core.getBooleanInput('is_json_allow_empty');
-    const default_envkey_value = core.getInput('default_envkey_value') || '_';
-    const default_json_value = core.getInput('default_json_value') || '_';
+    const default_envkey_value = core.getInput('default_envkey_value');
+    const default_json_value = core.getInput('default_json_value');
     const json = core.getInput('json');
 
     let envFileContent = '';
