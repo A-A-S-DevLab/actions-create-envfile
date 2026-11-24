@@ -2,34 +2,30 @@ name: 'Create .env file'
 description: 'This GitHub Action helps to create a .env file'
 author: 'Alexey Savelyev'
 inputs:
-    name:
-        description: 'The filename for the envfile'
-        required: false
-        default: '.env'
-    directory:
-        description: 'The directory to put the envfile in, relative to the workspace; it must exist'
-        required: false
-        default: ''
     is_envkey_allow_empty:
         description: 'Allow empty envkey_ values: true — replaced by default_envkey_value, false — the step fails'
-        required: false
-        default: 'true'
-    is_json_allow_empty:
-        description: 'Allow empty json values: true — replaced by default_json_value, false — the step fails'
         required: false
         default: 'true'
     default_envkey_value:
         description: 'Value for an empty envkey_ value'
         required: false
         default: '_'
-    default_json_value:
-        description: 'Value for an empty json value'
-        required: false
-        default: '_'
-    json:
+    json_data:
         description: 'JSON object {"key": "value"}; its keys are added after the envkey_ keys'
         required: false
         default: ''
+    is_json_allow_empty:
+        description: 'Allow empty json_data values: true — replaced by default_json_value, false — the step fails'
+        required: false
+        default: 'true'
+    default_json_value:
+        description: 'Value for an empty json_data value'
+        required: false
+        default: '_'
+    output_path:
+        description: 'Path to the .env file, relative to the workspace; its directory must exist'
+        required: false
+        default: '.env'
 
 runs:
     using: 'node24'

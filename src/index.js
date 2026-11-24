@@ -49,13 +49,12 @@ function envLine(key, value)
 
 try
 {
-    const fileName = core.getInput('name') || '.env'
-    let fileDirectory = core.getInput('directory') || ''
     const is_envkey_allow_empty = core.getBooleanInput('is_envkey_allow_empty');
-    const is_json_allow_empty = core.getBooleanInput('is_json_allow_empty');
     const default_envkey_value = core.getInput('default_envkey_value');
+    const json_data = core.getInput('json_data');
+    const is_json_allow_empty = core.getBooleanInput('is_json_allow_empty');
     const default_json_value = core.getInput('default_json_value');
-    const json = core.getInput('json');
+    let output_path = core.getInput('output_path') || '.env';
 
     let envFileContent = '';
     const writtenKeys = new Set();
@@ -80,37 +79,37 @@ try
         addEnv(inputKey.slice('INPUT_ENVKEY_'.length), process.env[inputKey], is_envkey_allow_empty, default_envkey_value, 'envkey_');
     }
 
-    if (json !== '')
+    if (json_data !== '')
     {
         let data;
         try
         {
-            data = JSON.parse(json);
+            data = JSON.parse(json_data);
         }
         catch
         {
-            throw new Error('json is not a valid JSON');
+            throw new Error('json_data is not a valid JSON');
         }
         if (data === null || typeof data !== 'object' || Array.isArray(data))
         {
-            throw new Error('json must be an object');
+            throw new Error('json_data must be an object');
         }
 
         for (const dataKey of Object.keys(data))
         {
-            addEnv(dataKey, data[dataKey], is_json_allow_empty, default_json_value, 'json');
+            addEnv(dataKey, data[dataKey], is_json_allow_empty, default_json_value, 'json_data');
         }
     }
 
-    if (fileDirectory.startsWith('/'))
+    if (output_path.startsWith('/'))
     {
         throw new Error('Absolute paths are not allowed. Please use a relative path.');
     }
-    if (fileDirectory.startsWith('./'))
+    if (output_path.startsWith('./'))
     {
-        fileDirectory = fileDirectory.slice(2);
+        output_path = output_path.slice(2);
     }
-    let filePath = path.join(process.env.GITHUB_WORKSPACE, fileDirectory, fileName);
+    let filePath = path.join(process.env.GITHUB_WORKSPACE, output_path);
 
     console.log(`dest path: ${filePath}`);
 
