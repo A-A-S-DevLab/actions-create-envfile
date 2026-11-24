@@ -6,7 +6,7 @@ Creates a `.env` file for docker compose from `envkey_*` inputs and a JSON objec
 
 ```yaml
 -   name: Create .env file
-    uses: A-A-S-DevLab/actions-create-envfile@v1.1.0
+    uses: A-A-S-DevLab/actions-create-envfile@v2.0.0
     with:
         is_envkey_allow_empty: false
         envkey_container_name: ${{ env.CONTAINER_NAME }}
