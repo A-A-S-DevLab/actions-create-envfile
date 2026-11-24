@@ -27671,7 +27671,8 @@ try
 
     console.log(`dest path: ${filePath}`);
 
-    fs.writeFileSync(filePath, envFileContent, { encoding:'utf8', flag:'a' });
+    fs.writeFileSync(filePath, envFileContent, { encoding:'utf8', flag:'a', mode: 0o600 });
+    fs.chmodSync(filePath, 0o600);
 }
 catch (error)
 {
