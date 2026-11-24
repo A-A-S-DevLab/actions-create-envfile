@@ -4,46 +4,78 @@ const path = require("path");
 
 const fileName = core.getInput('name') || '.env'
 let fileDirectory = core.getInput('directory') || ''
-const fail_on_empty = core.getInput('fail_on_empty') || 'true';
-const sort_keys = core.getInput('sort_keys') || 'false';
+const is_envkey_allow_empty = core.getInput('is_envkey_allow_empty') || 'true';
+const is_json_allow_empty = core.getInput('is_json_allow_empty') || 'true';
+const default_envkey_value = core.getInput('default_envkey_value') || '_';
+const default_json_value = core.getInput('default_json_value') || '_';
+const json = core.getInput('json');
+
+function envValue(key, value, isAllowEmpty, defaultValue, source)
+{
+    if (value !== '')
+    {
+        return value;
+    }
+    if (isAllowEmpty !== 'true')
+    {
+        throw new Error(`Empty value of ${key} in ${source}`);
+    }
+    return defaultValue;
+}
+
+function envLine(key, value)
+{
+    // If the value contains newlines, replace them with the string `\n`
+    // and add double quotes around the value.
+    if (value.includes('\n'))
+    {
+        return `${key}="${value.replace(/\r?\n/g, '\\n')}"\n`;
+    }
+    return `${key}=${value}\n`;
+}
 
 try
 {
-    let envKeys;
-    if (sort_keys === 'true')
-    {
-        envKeys = Object.keys(process.env).sort((a, b) => a.localeCompare(b));
-    }
-    else
-    {
-        envKeys = Object.keys(process.env);
-    }
-
     let envFileContent = '';
+    const writtenKeys = new Set();
 
-    for (const key of envKeys)
+    function addEnv(key, value)
     {
-        if (key.startsWith('INPUT_ENVKEY_'))
+        if (writtenKeys.has(key))
         {
-            const value = process.env[key] || '';
+            throw new Error(`Duplicate env key ${key}`);
+        }
+        writtenKeys.add(key);
+        envFileContent += envLine(key, value);
+    }
 
-            if (value === '' && fail_on_empty === 'true') {
-                throw new Error(`Empty env key found: ${key}`)
-            }
+    const inputKeys = Object.keys(process.env).filter(key => key.startsWith('INPUT_ENVKEY_'));
+    for (const inputKey of inputKeys)
+    {
+        const key = inputKey.slice('INPUT_ENVKEY_'.length).toUpperCase();
+        addEnv(key, envValue(key, process.env[inputKey] || '', is_envkey_allow_empty, default_envkey_value, 'envkey_'));
+    }
 
-            // If the value contains newlines, replace them with the string `\n`
-            // and add double quotes around the value.
-            //
-            // Reference from dotenv:
-            // https://github.com/motdotla/dotenv#multiline-values
-            if (value.includes('\n'))
-            {
-                envFileContent += `${key.split('INPUT_ENVKEY_')[1]}="${value.replace(/\r?\n/g, '\\n')}"\n`;
-            }
-            else
-            {
-                envFileContent += `${key.split('INPUT_ENVKEY_')[1]}=${value}\n`;
-            }
+    if (json !== '')
+    {
+        let data;
+        try
+        {
+            data = JSON.parse(json);
+        }
+        catch
+        {
+            throw new Error('json is not a valid JSON');
+        }
+        if (data === null || typeof data !== 'object' || Array.isArray(data))
+        {
+            throw new Error('json must be an object');
+        }
+
+        for (const dataKey of Object.keys(data))
+        {
+            const key = dataKey.toUpperCase();
+            addEnv(key, envValue(key, String(data[dataKey] ?? ''), is_json_allow_empty, default_json_value, 'json'));
         }
     }
 

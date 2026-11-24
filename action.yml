@@ -10,14 +10,26 @@ inputs:
         description: 'The directory to put the envfile in'
         required: false
         default: ''
-    fail_on_empty:
-        description: 'Fail if an env key is an empty string'
+    is_envkey_allow_empty:
+        description: 'Allow empty envkey_ values: true — replaced by default_envkey_value, false — the step fails'
         required: false
-        default: 'false'
-    sort_keys:
-        description: 'Sort the keys alphabetically'
+        default: 'true'
+    is_json_allow_empty:
+        description: 'Allow empty json values: true — replaced by default_json_value, false — the step fails'
         required: false
-        default: 'false'
+        default: 'true'
+    default_envkey_value:
+        description: 'Value for an empty envkey_ value'
+        required: false
+        default: ''
+    default_json_value:
+        description: 'Value for an empty json value'
+        required: false
+        default: ''
+    json:
+        description: 'JSON object {"key": "value"}; its keys are added after the envkey_ keys'
+        required: false
+        default: ''
 
 runs:
     using: 'node20'
