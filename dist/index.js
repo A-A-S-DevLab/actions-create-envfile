@@ -27562,37 +27562,54 @@ const path = __nccwpck_require__(6928);
 const fileName = core.getInput('name') || '.env'
 let fileDirectory = core.getInput('directory') || ''
 const is_envkey_allow_empty = core.getInput('is_envkey_allow_empty') || 'true';
-const default_envkey_value = core.getInput('default_envkey_value');
-const json = core.getInput('json');
 const is_json_allow_empty = core.getInput('is_json_allow_empty') || 'true';
-const default_json_value = core.getInput('default_json_value');
+const default_envkey_value = core.getInput('default_envkey_value') || '_';
+const default_json_value = core.getInput('default_json_value') || '_';
+const json = core.getInput('json');
 
-// Empty value is replaced by the default value if empty values are allowed
-function envValue(key, value, isAllowEmpty, defaultValue, source)
+function envKey(key)
 {
-    if (value !== '')
+    if (typeof key !== 'string')
     {
-        return value;
+        throw new Error(`Key ${key} must be a string`);
     }
-    if (isAllowEmpty !== 'true')
+
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(key))
     {
-        throw new Error(`Empty value of ${key} in ${source}`);
+        throw new Error(`Invalid env key ${key}: only A-Z, a-z, 0-9 and _ are allowed`);
     }
-    return defaultValue;
+
+    return key.toUpperCase();
 }
 
-// If the value contains newlines, replace them with the string `\n`
-// and add double quotes around the value.
-//
-// Reference from dotenv:
-// https://github.com/motdotla/dotenv#multiline-values
+function envValue(key, value, isAllowEmpty, defaultValue, source)
+{
+    if (value !== null && typeof value === 'object')
+    {
+        throw new Error(`Value of ${key} in ${source} must be a string, number, boolean or null`);
+    }
+
+    let stringValue = String(value ?? '');
+    if (stringValue === '')
+    {
+        if (isAllowEmpty !== 'true')
+        {
+            throw new Error(`Empty value of ${key} in ${source}`);
+        }
+        stringValue = defaultValue;
+    }
+
+    return stringValue
+        .replace(/\\/g, '\\\\')
+        .replace(/"/g, '\\"')
+        .replace(/\$/g, '\\$')
+        .replace(/\r/g, '\\r')
+        .replace(/\n/g, '\\n');
+}
+
 function envLine(key, value)
 {
-    if (value.includes('\n'))
-    {
-        return `${key}="${value.replace(/\r?\n/g, '\\n')}"\n`;
-    }
-    return `${key}=${value}\n`;
+    return `${key}="${value}"\n`;
 }
 
 try
@@ -27600,21 +27617,24 @@ try
     let envFileContent = '';
     const writtenKeys = new Set();
 
-    function addEnv(key, value)
+    function addEnv(key, value, isAllowEmpty, defaultValue, source)
     {
-        if (writtenKeys.has(key))
+        const checkedKey = envKey(key);
+        const checkedValue = envValue(checkedKey, value, isAllowEmpty, defaultValue, source);
+
+        if (writtenKeys.has(checkedKey))
         {
-            throw new Error(`Duplicate env key ${key}`);
+            throw new Error(`Duplicate env key ${checkedKey}`);
         }
-        writtenKeys.add(key);
-        envFileContent += envLine(key, value);
+        writtenKeys.add(checkedKey);
+
+        envFileContent += envLine(checkedKey, checkedValue);
     }
 
     const inputKeys = Object.keys(process.env).filter(key => key.startsWith('INPUT_ENVKEY_'));
     for (const inputKey of inputKeys)
     {
-        const key = inputKey.slice('INPUT_ENVKEY_'.length).toUpperCase();
-        addEnv(key, envValue(key, process.env[inputKey] || '', is_envkey_allow_empty, default_envkey_value, 'envkey_'));
+        addEnv(inputKey.slice('INPUT_ENVKEY_'.length), process.env[inputKey], is_envkey_allow_empty, default_envkey_value, 'envkey_');
     }
 
     if (json !== '')
@@ -27626,7 +27646,6 @@ try
         }
         catch
         {
-            // The parser message may contain a part of the values
             throw new Error('json is not a valid JSON');
         }
         if (data === null || typeof data !== 'object' || Array.isArray(data))
@@ -27636,8 +27655,7 @@ try
 
         for (const dataKey of Object.keys(data))
         {
-            const key = dataKey.toUpperCase();
-            addEnv(key, envValue(key, String(data[dataKey] ?? ''), is_json_allow_empty, default_json_value, 'json'));
+            addEnv(dataKey, data[dataKey], is_json_allow_empty, default_json_value, 'json');
         }
     }
 

@@ -32,7 +32,9 @@ Add this step in your workflow file
 - `envkey_some_env`: These values can be whatever, and they will be added to the '.env' file as `SOME_ENV`.
 - `json`: JSON object `{"key": "value"}`. Its keys are added after the `envkey_` keys: `db_password` → `DB_PASSWORD`.
 
-Keys are always written in upper case. A key that is already in the file (from `envkey_` or the same key in another case) fails the step.
+Keys may contain only `A-Z`, `a-z`, `0-9` and `_`, not starting with a digit, and are always written in upper case. A key that is already in the file (from `envkey_` or the same key in another case) fails the step.
+
+Values are written in double quotes with escaped `\`, `"`, `$` and line breaks: `KEY="a\$b\n"`. Docker compose reads them as is, without interpolation, comments or trimming. Values in `json` must be strings, numbers, booleans or `null`.
 
 ## 
 
