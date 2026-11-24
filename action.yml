@@ -23,7 +23,7 @@ inputs:
         required: false
         default: '_'
     output_path:
-        description: 'Path to the .env file, relative to the workspace; its directory must exist'
+        description: 'Path to the .env file, relative to the workspace; a missing directory is created'
         required: false
         default: '.env'
 

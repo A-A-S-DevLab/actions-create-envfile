@@ -27,6 +27,19 @@ function checkRelativePath(name, value) {
     return value;
 }
 
+function writeFile(filePath, content, mode, details) {
+    const dirPath = path.dirname(filePath);
+    if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, {recursive: true});
+        console.log(`📁 Created directory: ${dirPath}`);
+    }
+    fs.writeFileSync(filePath, content, {encoding: 'utf8', mode});
+    if (mode !== undefined) {
+        fs.chmodSync(filePath, mode);
+    }
+    console.log(`✅ Updated: ${filePath}${details ? ` (${details})` : ''}`);
+}
+
 function envKey(key) {
     if (typeof key !== 'string') {
         throw new Error(`Key ${key} must be a string`);
@@ -85,10 +98,7 @@ try {
         }
     }
 
-    const filePath = path.join(process.env.GITHUB_WORKSPACE, outputPath);
-    fs.writeFileSync(filePath, [...envLines.values()].join(''), {encoding: 'utf8', flag: 'w', mode: 0o600});
-    fs.chmodSync(filePath, 0o600);
-    console.log(`✅ Updated: ${outputPath} (${[...envLines.keys()].join(', ')})`);
+    writeFile(path.join(outputPath), [...envLines.values()].join(''), 0o600, [...envLines.keys()].join(', '));
 } catch (error) {
     core.setFailed(`❌ Error: ${error instanceof Error ? error.message : String(error)}`);
 }

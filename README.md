@@ -29,7 +29,7 @@ Add this step in your workflow file
 - `json_data`: JSON object `{"key": "value"}`. Its keys are added after the `envkey_` keys: `db_password` → `DB_PASSWORD`.
 - `is_json_allow_empty`: Allow empty `json_data` values: `true` — an empty value is replaced by `default_json_value`, `false` — the step fails. Default to true.
 - `default_json_value`: Value for an empty `json_data` value. Default to `_`.
-- `output_path`: Path to the .env file, relative to the workspace. Its directory must exist. Default to `.env`.
+- `output_path`: Path to the .env file, relative to the workspace. A missing directory is created. Default to `.env`.
 
 Keys may contain only `A-Z`, `a-z`, `0-9` and `_`, not starting with a digit, and are always written in upper case. A key that is already in the file (from `envkey_` or the same key in another case) fails the step.
 
