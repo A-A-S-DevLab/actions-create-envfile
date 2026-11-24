@@ -27643,7 +27643,7 @@ try {
     }
 
     const filePath = path.join(process.env.GITHUB_WORKSPACE, outputPath);
-    fs.writeFileSync(filePath, [...envLines.values()].join(''), {encoding: 'utf8', flag: 'a', mode: 0o600});
+    fs.writeFileSync(filePath, [...envLines.values()].join(''), {encoding: 'utf8', flag: 'w', mode: 0o600});
     fs.chmodSync(filePath, 0o600);
     console.log(`✅ Updated: ${outputPath} (${[...envLines.keys()].join(', ')})`);
 } catch (error) {
