@@ -2,14 +2,6 @@ const core = require("@actions/core");
 const fs = require("fs");
 const path = require("path");
 
-const fileName = core.getInput('name') || '.env'
-let fileDirectory = core.getInput('directory') || ''
-const is_envkey_allow_empty = core.getInput('is_envkey_allow_empty') || 'true';
-const is_json_allow_empty = core.getInput('is_json_allow_empty') || 'true';
-const default_envkey_value = core.getInput('default_envkey_value') || '_';
-const default_json_value = core.getInput('default_json_value') || '_';
-const json = core.getInput('json');
-
 function envKey(key)
 {
     if (typeof key !== 'string')
@@ -35,7 +27,7 @@ function envValue(key, value, isAllowEmpty, defaultValue, source)
     let stringValue = String(value ?? '');
     if (stringValue === '')
     {
-        if (isAllowEmpty !== 'true')
+        if (!isAllowEmpty)
         {
             throw new Error(`Empty value of ${key} in ${source}`);
         }
@@ -57,6 +49,14 @@ function envLine(key, value)
 
 try
 {
+    const fileName = core.getInput('name') || '.env'
+    let fileDirectory = core.getInput('directory') || ''
+    const is_envkey_allow_empty = core.getBooleanInput('is_envkey_allow_empty');
+    const is_json_allow_empty = core.getBooleanInput('is_json_allow_empty');
+    const default_envkey_value = core.getInput('default_envkey_value') || '_';
+    const default_json_value = core.getInput('default_json_value') || '_';
+    const json = core.getInput('json');
+
     let envFileContent = '';
     const writtenKeys = new Set();
 
@@ -119,8 +119,5 @@ try
 }
 catch (error)
 {
-    if (error instanceof Error)
-    {
-        core.setFailed(error.message);
-    }
+    core.setFailed(error instanceof Error ? error.message : String(error));
 }
