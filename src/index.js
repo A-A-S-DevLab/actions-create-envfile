@@ -43,6 +43,7 @@ function envValue(key, value, isAllowEmpty, defaultValue, source) {
         if (!isAllowEmpty) {
             throw new Error(`Empty value of ${key} in ${source}`);
         }
+        console.log(`🟡 Empty value of ${key} in ${source}: replaced by default`);
         stringValue = defaultValue;
     }
     return stringValue
@@ -85,9 +86,9 @@ try {
     }
 
     const filePath = path.join(process.env.GITHUB_WORKSPACE, outputPath);
-    console.log(`dest path: ${filePath}`);
     fs.writeFileSync(filePath, [...envLines.values()].join(''), {encoding: 'utf8', flag: 'a', mode: 0o600});
     fs.chmodSync(filePath, 0o600);
+    console.log(`✅ Updated: ${outputPath} (${[...envLines.keys()].join(', ')})`);
 } catch (error) {
-    core.setFailed(error instanceof Error ? error.message : String(error));
+    core.setFailed(`❌ Error: ${error instanceof Error ? error.message : String(error)}`);
 }
