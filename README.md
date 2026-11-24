@@ -1,43 +1,50 @@
 # GitHub Action - Create .env file
 
-This GitHub Action helps to create a .env file
-
+Creates a `.env` file for docker compose from `envkey_*` inputs and a JSON object.
 
 ## Usage
 
-Add this step in your workflow file
 ```yaml
 -   name: Create .env file
     uses: A-A-S-DevLab/actions-create-envfile@v1.1.0
     with:
         is_envkey_allow_empty: false
         envkey_container_name: ${{ env.CONTAINER_NAME }}
-        envkey_service_network: ${{ env.SERVICE_NETWORK }}
         envkey_service_port: ${{ env.SERVICE_PORT }}
-        envkey_server_local_ip: ${{ env.SERVER_LOCAL_IP }}
-        envkey_image_version: ${{ env.IMAGE_VERSION }}
         json_data: ${{ steps.service_secrets.outputs.credentials }}
-        is_json_allow_empty: true
-        output_path: ".env"
+        output_path: './copy-to-host/.env'
 ```
 
-## Input Variables
+## Inputs
 
-- `is_envkey_allow_empty`: Allow empty `envkey_` values: `true` — an empty value is replaced by `default_envkey_value`, `false` — the step fails. Default to true.
-- `default_envkey_value`: Value for an empty `envkey_` value. Default to `_`.
-- `envkey_some_env`: These values can be whatever, and they will be added to the '.env' file as `SOME_ENV`.
-- `json_data`: JSON object `{"key": "value"}`. Its keys are added after the `envkey_` keys: `db_password` → `DB_PASSWORD`.
-- `is_json_allow_empty`: Allow empty `json_data` values: `true` — an empty value is replaced by `default_json_value`, `false` — the step fails. Default to true.
-- `default_json_value`: Value for an empty `json_data` value. Default to `_`.
-- `output_path`: Path to the .env file, relative to the workspace. A missing directory is created. Default to `.env`.
+- `is_envkey_allow_empty` — optional, default `true`. Allow empty `envkey_*` values: `true` — an empty value is replaced by `default_envkey_value`, `false` — the step fails.
+- `default_envkey_value` — optional, default `_`. Value for an empty `envkey_*` value.
+- `envkey_*` — optional. `envkey_some_env` is written as `SOME_ENV`.
+- `json_data` — optional, default empty. JSON object `{"key": "value"}`, its keys are written after the `envkey_*` keys: `db_password` → `DB_PASSWORD`.
+- `is_json_allow_empty` — optional, default `true`. Allow empty `json_data` values: `true` — an empty value is replaced by `default_json_value`, `false` — the step fails.
+- `default_json_value` — optional, default `_`. Value for an empty `json_data` value.
+- `output_path` — optional, default `.env`. Path to the `.env` file, relative to the workspace.
 
-Keys may contain only `A-Z`, `a-z`, `0-9` and `_`, not starting with a digit, and are always written in upper case. A key that is already in the file (from `envkey_` or the same key in another case) fails the step.
+## Rules
 
-The file is written with mode `0600`: it contains secrets.
+- Keys may contain only `A-Z`, `a-z`, `0-9` and `_`, not starting with a digit, and are written in upper case. A repeated key, also in another case or from both `envkey_*` and `json_data`, fails the step.
+- Values in `json_data` must be strings, numbers, booleans or `null`; an empty string and `null` are empty values.
+- Values are written in double quotes with escaped `\`, `"`, `$` and line breaks: `KEY="a\$b\n"`. Docker compose reads them as is, without interpolation, comments or trimming.
+- The file is overwritten and gets mode `0600`: it contains secrets.
+- `output_path` must be relative; a missing directory is created.
 
-Values are written in double quotes with escaped `\`, `"`, `$` and line breaks: `KEY="a\$b\n"`. Docker compose reads them as is, without interpolation, comments or trimming. Values in `json_data` must be strings, numbers, booleans or `null`.
+## Logs
 
-## 
+Key names only, values are never logged:
 
-This repo was forked and modified.
-Original: https://github.com/SpicyPizza/create-envfile
+```
+🟡 Empty value of SMTP_PASSWORD in json_data: replaced by default
+📁 Created directory: copy-to-host
+✅ Updated: copy-to-host/.env (CONTAINER_NAME, SERVICE_PORT, DB_PASSWORD, SMTP_PASSWORD)
+```
+
+An error fails the step: `❌ Error: Duplicate env key DB_PASSWORD`.
+
+## Origin
+
+Forked and modified from https://github.com/SpicyPizza/create-envfile
